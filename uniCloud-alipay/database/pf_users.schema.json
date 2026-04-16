@@ -1,0 +1,63 @@
+{
+  "bsonType": "object",
+  "required": [
+    "uid",
+    "display_name",
+    "total_growth",
+    "total_actions"
+  ],
+  "permission": {
+    "read": false,
+    "create": false,
+    "update": false,
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "uid": {
+      "bsonType": "string",
+      "title": "uni-id 用户ID"
+    },
+    "display_name": {
+      "bsonType": "string",
+      "title": "昵称",
+      "defaultValue": "花友"
+    },
+    "avatar": {
+      "bsonType": "string",
+      "title": "头像URL"
+    },
+    "current_user_plant_id": {
+      "bsonType": "string",
+      "title": "当前花朵实例ID"
+    },
+    "total_growth": {
+      "bsonType": "int",
+      "title": "累计成长值",
+      "defaultValue": 0,
+      "minimum": 0
+    },
+    "total_actions": {
+      "bsonType": "int",
+      "title": "累计行为次数",
+      "defaultValue": 0,
+      "minimum": 0
+    },
+    "create_time": {
+      "bsonType": "timestamp",
+      "description": "创建时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    },
+    "update_time": {
+      "bsonType": "timestamp",
+      "description": "更新时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    }
+  }
+}

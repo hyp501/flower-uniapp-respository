@@ -1,0 +1,93 @@
+{
+  "bsonType": "object",
+  "required": [
+    "code",
+    "name",
+    "stage_rules",
+    "growth_per_action",
+    "is_enabled"
+  ],
+  "permission": {
+    "read": true,
+    "create": false,
+    "update": false,
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "code": {
+      "bsonType": "string",
+      "title": "花种编码",
+      "description": "唯一编码，如 rose-basic"
+    },
+    "name": {
+      "bsonType": "string",
+      "title": "花种名称"
+    },
+    "description": {
+      "bsonType": "string",
+      "title": "花种描述"
+    },
+    "stage_rules": {
+      "bsonType": "array",
+      "title": "阶段规则",
+      "description": "按 min_growth 升序配置成长阶段",
+      "defaultValue": [
+        {
+          "stage": "seed",
+          "label": "种子",
+          "min_growth": 0
+        },
+        {
+          "stage": "sprout",
+          "label": "幼苗",
+          "min_growth": 20
+        },
+        {
+          "stage": "bloom",
+          "label": "开花",
+          "min_growth": 50
+        }
+      ]
+    },
+    "growth_per_action": {
+      "bsonType": "object",
+      "title": "行为成长值配置",
+      "defaultValue": {
+        "water": 2,
+        "fertilize": 3,
+        "weed": 1
+      }
+    },
+    "daily_action_limit": {
+      "bsonType": "object",
+      "title": "每日行为次数限制",
+      "defaultValue": {
+        "water": 1,
+        "fertilize": 1,
+        "weed": 1
+      }
+    },
+    "is_enabled": {
+      "bsonType": "bool",
+      "title": "是否启用",
+      "defaultValue": true
+    },
+    "create_time": {
+      "bsonType": "timestamp",
+      "description": "创建时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    },
+    "update_time": {
+      "bsonType": "timestamp",
+      "description": "更新时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    }
+  }
+}

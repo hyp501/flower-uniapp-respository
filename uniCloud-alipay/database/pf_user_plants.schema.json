@@ -1,0 +1,78 @@
+{
+  "bsonType": "object",
+  "required": [
+    "uid",
+    "plant_id",
+    "growth_value",
+    "stage"
+  ],
+  "permission": {
+    "read": false,
+    "create": false,
+    "update": false,
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "uid": {
+      "bsonType": "string",
+      "title": "uni-id 用户ID"
+    },
+    "plant_id": {
+      "bsonType": "string",
+      "title": "花种ID",
+      "foreignKey": "pf_plants._id"
+    },
+    "growth_value": {
+      "bsonType": "int",
+      "title": "当前成长值",
+      "defaultValue": 0,
+      "minimum": 0
+    },
+    "stage": {
+      "bsonType": "string",
+      "title": "当前阶段",
+      "defaultValue": "seed",
+      "enum": [
+        {
+          "text": "种子",
+          "value": "seed"
+        },
+        {
+          "text": "幼苗",
+          "value": "sprout"
+        },
+        {
+          "text": "开花",
+          "value": "bloom"
+        }
+      ]
+    },
+    "health_score": {
+      "bsonType": "int",
+      "title": "健康度",
+      "defaultValue": 100
+    },
+    "last_action_date": {
+      "bsonType": "string",
+      "title": "最近行为日期",
+      "description": "YYYY-MM-DD"
+    },
+    "create_time": {
+      "bsonType": "timestamp",
+      "description": "创建时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    },
+    "update_time": {
+      "bsonType": "timestamp",
+      "description": "更新时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    }
+  }
+}

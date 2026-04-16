@@ -1,0 +1,28 @@
+
+  /*每个页面公共css */
+page {
+    --pf-color-primary: #47af63;
+    --pf-color-primary-dark: #2d7a42;
+    --pf-color-text-main: #2a4d34;
+    --pf-color-text-sub: #819482;
+    --pf-color-bg-soft: #f8fcf5;
+    --pf-color-surface: #ffffff;
+    --pf-color-tag: #e5f6e9;
+    --pf-color-tag-text: #2e7f44;
+    --pf-radius-card: 24rpx;
+    --pf-radius-pill: 999rpx;
+    --pf-shadow-card: 0 10rpx 30rpx rgba(37, 110, 52, 0.08);
+}
+view {
+    box-sizing: border-box;
+}
+@font-face {
+    font-family: "iconfont";
+    src: url('https://at.alicdn.com/t/font_2354462_s00xh8caffp.ttf');
+}
+.ico {
+    font-family: iconfont;
+}
+
+
+page{--status-bar-height:25px;--top-window-height:0px;--window-top:0px;--window-bottom:0px;--window-left:0px;--window-right:0px;--window-magin:0px}[data-c-h="true"]{display: none !important;}

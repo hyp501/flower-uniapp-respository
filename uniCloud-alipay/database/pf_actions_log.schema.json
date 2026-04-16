@@ -1,0 +1,75 @@
+{
+  "bsonType": "object",
+  "required": [
+    "uid",
+    "user_plant_id",
+    "action_type",
+    "growth_delta",
+    "action_date",
+    "idempotency_key"
+  ],
+  "permission": {
+    "read": false,
+    "create": false,
+    "update": false,
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "uid": {
+      "bsonType": "string",
+      "title": "uni-id 用户ID"
+    },
+    "user_plant_id": {
+      "bsonType": "string",
+      "title": "用户花朵实例ID",
+      "foreignKey": "pf_user_plants._id"
+    },
+    "action_type": {
+      "bsonType": "string",
+      "title": "动作类型",
+      "enum": [
+        {
+          "text": "浇水",
+          "value": "water"
+        },
+        {
+          "text": "施肥",
+          "value": "fertilize"
+        },
+        {
+          "text": "除草",
+          "value": "weed"
+        }
+      ]
+    },
+    "growth_delta": {
+      "bsonType": "int",
+      "title": "成长值增量",
+      "minimum": 0
+    },
+    "action_date": {
+      "bsonType": "string",
+      "title": "行为日期",
+      "description": "YYYY-MM-DD"
+    },
+    "idempotency_key": {
+      "bsonType": "string",
+      "title": "幂等键",
+      "description": "建议由 uid:action_type:action_date 组成"
+    },
+    "request_id": {
+      "bsonType": "string",
+      "title": "请求ID"
+    },
+    "create_time": {
+      "bsonType": "timestamp",
+      "description": "创建时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    }
+  }
+}
