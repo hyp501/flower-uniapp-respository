@@ -5,6 +5,7 @@
   "main": "index.js",
   "license": "ISC",
   "dependencies": {
+    "plant-level": "file:../common/plant-level",
     "uni-id": "file:../../../uni_modules/uni-id/uniCloud/cloudfunctions/common/uni-id"
   }
 }

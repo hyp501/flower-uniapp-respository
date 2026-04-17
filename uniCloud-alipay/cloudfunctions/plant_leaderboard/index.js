@@ -4,6 +4,7 @@ const db = uniCloud.database();
 const dbCmd = db.command;
 const usersCol = db.collection('pf_users');
 const uniID = require('uni-id');
+const { getLevelInfoByGrowth } = require('plant-level');
 
 async function getUid(event, context) {
   if (event && event.uniIdToken) {
@@ -28,12 +29,14 @@ exports.main = async (event, context) => {
     rank: index + 1,
     display_name: item.display_name || '花友',
     total_growth: item.total_growth || 0,
+    user_level: getLevelInfoByGrowth(item.total_growth || 0).user_level,
     is_me: uid ? item.uid === uid : false
   }));
 
   let my_rank = null;
   let my_total_growth = 0;
   let my_display_name = '花友';
+  let my_level = 1;
 
   if (uid) {
     const mineRes = await usersCol.where({ uid }).limit(1).get();
@@ -41,6 +44,7 @@ exports.main = async (event, context) => {
     if (mine) {
       my_total_growth = mine.total_growth || 0;
       my_display_name = mine.display_name || '花友';
+      my_level = getLevelInfoByGrowth(my_total_growth).user_level;
       const higherRes = await usersCol
         .where({
           total_growth: dbCmd.gt(my_total_growth)
@@ -57,7 +61,8 @@ exports.main = async (event, context) => {
       list,
       my_rank,
       my_total_growth,
-      my_display_name
+      my_display_name,
+      my_level
     }
   };
 };

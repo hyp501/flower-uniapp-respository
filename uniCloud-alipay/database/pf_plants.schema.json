@@ -30,6 +30,13 @@
       "bsonType": "string",
       "title": "花种描述"
     },
+    "unlock_level": {
+      "bsonType": "int",
+      "title": "解锁等级",
+      "description": "用户达到该等级后可种下该花种",
+      "defaultValue": 1,
+      "minimum": 1
+    },
     "stage_rules": {
       "bsonType": "array",
       "title": "阶段规则",
