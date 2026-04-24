@@ -30,6 +30,13 @@
       "bsonType": "string",
       "title": "花种描述"
     },
+    "price": {
+      "bsonType": "int",
+      "title": "种子价格",
+      "description": "用于按价格映射解锁等级",
+      "defaultValue": 0,
+      "minimum": 0
+    },
     "unlock_level": {
       "bsonType": "int",
       "title": "解锁等级",
@@ -65,7 +72,9 @@
       "defaultValue": {
         "water": 2,
         "fertilize": 3,
-        "weed": 1
+        "weed": 1,
+        "prune": 1,
+        "share": 2
       }
     },
     "daily_action_limit": {
@@ -74,7 +83,9 @@
       "defaultValue": {
         "water": 1,
         "fertilize": 1,
-        "weed": 1
+        "weed": 1,
+        "prune": 1,
+        "share": 1
       }
     },
     "is_enabled": {

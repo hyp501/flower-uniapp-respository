@@ -7,11 +7,14 @@ const uniID = require('uni-id');
 const { getLevelInfoByGrowth } = require('plant-level');
 
 async function getUid(event, context) {
+  const contextUid = context && context.auth && context.auth.uid;
+  if (contextUid) return contextUid;
   if (event && event.uniIdToken) {
     const payload = await uniID.checkToken(event.uniIdToken);
     if (!payload.code && payload.uid) return payload.uid;
+    return '';
   }
-  return (event && event.uid) || (context && context.auth && context.auth.uid) || '';
+  return '';
 }
 
 exports.main = async (event, context) => {

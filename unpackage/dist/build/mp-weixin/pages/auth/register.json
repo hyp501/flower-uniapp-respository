@@ -1,0 +1,7 @@
+{
+  "navigationStyle": "custom",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "uni-captcha": "../../uni_modules/uni-captcha/components/uni-captcha/uni-captcha"
+  }
+}

@@ -1,116 +1,90 @@
 <template>
   <view class="page">
-    <view class="ambient-layer">
-      <view class="mist mist-1"></view>
-      <view class="mist mist-2"></view>
-      <view class="mist mist-3"></view>
-      <view class="particle p-1"></view>
-      <view class="particle p-2"></view>
-      <view class="particle p-3"></view>
-      <view class="particle p-4"></view>
-    </view>
-
-    <view class="forest-scene">
-      <view class="scene-sky"></view>
-      <view class="cloud cloud-left"></view>
-      <view class="cloud cloud-right"></view>
-      <view class="sun"></view>
-      <view class="scene-content">
-        <view class="hero-top">
-          <view class="hero-title">我的花园</view>
-          <view class="hero-badge">{{ plant.stage_label || '待成长' }}</view>
-        </view>
-        <view class="plant-stage">
-          <image class="hero-image" :class="{ pulse: heroPulse }" :src="getFlowerImage(plant)" mode="aspectFit"></image>
-          <view class="glow-ring" :class="{ glow: heroPulse }"></view>
-          <view v-if="showFloatScore" class="float-score">+{{ floatScore }}</view>
-          <view v-if="showStageUp" class="stage-up-tip">升级啦！</view>
-        </view>
-        <view class="hero-plant">{{ plant.name || '未命名花种' }}</view>
-        <view class="hero-desc">{{ plant.description || '快来照料你的花花吧' }}</view>
-      </view>
-      <view class="scene-ground"></view>
-    </view>
-
-    <view class="energy-card">
-      <view class="panel-head">
-        <view class="panel-title-wrap">
-          <view class="panel-dot"></view>
-          <view class="panel-title">成长能量</view>
-        </view>
-        <view class="energy-value">{{ plant.growth_value || 0 }} / 18</view>
-      </view>
-      <view class="progress-bg">
-        <view class="progress-bar" :style="{ width: getGrowthPercent() + '%' }"></view>
-      </view>
-      <view class="stage-hint">9 分进阶幼苗，18 分开花</view>
-      <view class="stats-grid">
-        <view class="stats-item">
-          <view class="stats-value">{{ user.total_actions || 0 }}</view>
-          <view class="stats-label">累计养护</view>
-        </view>
-        <view class="stats-item">
-          <view class="stats-value">{{ user.total_growth || 0 }}</view>
-          <view class="stats-label">累计成长</view>
-        </view>
-      </view>
-    </view>
-
-    <view class="card panel-card">
-      <view class="panel-head">
-        <view class="panel-title-wrap">
-          <view class="panel-dot"></view>
-          <view class="panel-title">我的花圃</view>
-        </view>
-        <view class="panel-meta">{{ garden.total_flowers || 0 }} 朵</view>
-      </view>
-      <scroll-view class="flower-scroll" scroll-x>
-        <view class="flower-list">
-          <view
-            v-for="flower in garden.flowers"
-            :key="flower.user_plant_id"
-            class="flower-item"
-            :class="{ active: isCurrentFlower(flower.user_plant_id) }"
-            @click="onSelectFlower(flower.user_plant_id)"
-          >
-            <image class="flower-image" :src="getFlowerImage(flower)" mode="aspectFit"></image>
-            <view class="flower-name">{{ flower.name }}</view>
-            <view class="flower-stage">{{ flower.stage_label }}</view>
-            <view class="flower-growth">成长值 {{ flower.growth_value || 0 }}</view>
+    <view class="hero-header">
+      <view class="hero-row">
+        <view class="profile-pill">
+          <view class="avatar">
+            <view class="avatar-inner">{{ displayName.slice(0, 1) }}</view>
+          </view>
+          <view class="profile-text">
+            <view class="profile-name">{{ displayName }}</view>
+            <view class="profile-level">园丁 Lv.{{ levelText }}</view>
           </view>
         </view>
-      </scroll-view>
+        <view class="weather-pill">
+          <view class="weather-icon">
+            <view class="sun-core"></view>
+            <view class="sun-ring"></view>
+          </view>
+          <text class="weather-text">{{ weatherText }}</text>
+        </view>
+      </view>
+
+      <view class="stats-card">
+        <view class="stats-col">
+          <view class="stats-label">花朵积分</view>
+          <view class="stats-value">{{ user.total_growth || 0 }}</view>
+        </view>
+        <view class="stats-divider"></view>
+        <view class="stats-col">
+          <view class="stats-label">种植数</view>
+          <view class="stats-value">{{ garden.total_flowers || 0 }} 株</view>
+        </view>
+        <view class="stats-divider"></view>
+        <view class="stats-col">
+          <view class="stats-label">排名</view>
+          <view class="stats-value">#{{ rankText }}</view>
+        </view>
+      </view>
+
+      <view v-if="remindText" class="notice-bubble" @click="onActionTap('water')">
+        <text class="notice-dot"></text>
+        <text>{{ remindText }}</text>
+      </view>
     </view>
 
-    <view class="card action-panel panel-card">
-      <view class="panel-head">
-        <view class="panel-title-wrap">
-          <view class="panel-dot"></view>
-          <view class="panel-title">今日养护任务</view>
+    <view class="garden-stage">
+      <view class="ground-hill"></view>
+      <view class="plot">
+        <view v-if="displayFlowers.length === 0" class="empty-garden">
+          <view class="empty-title">花园空空的</view>
+          <view class="empty-desc">还没有种下花朵，去种子商店选一颗开始种植吧</view>
+          <view class="empty-btn" @click="goSeedShop">去选花种</view>
         </view>
-      </view>
-      <view class="action-grid">
         <view
-          v-for="item in actions"
-          :key="item.key"
-          class="action-bubble"
-          :class="{ disabled: loading || isActionDisabled(item.key) }"
-          @click="onActionTap(item.key)"
+          v-else
+          v-for="(flower, index) in displayFlowers"
+          :key="flower.user_plant_id || index"
+          class="flower-point"
+          :class="{ active: isHoveredFlower(flower.user_plant_id), pulse: heroPulse && isPulseFlower(flower.user_plant_id) }"
+          :style="{ left: getFlowerLeft(index, displayFlowers.length) }"
+          @mouseenter="onFlowerEnter(flower.user_plant_id)"
+          @mouseleave="onFlowerLeave"
+          @touchstart="onFlowerEnter(flower.user_plant_id)"
+          @touchend="onFlowerLeave"
+          @click="onSelectFlower(flower.user_plant_id)"
         >
-          <view class="bubble-icon">{{ getActionIcon(item.key) }}</view>
-          <view class="bubble-name">{{ item.label }}</view>
-          <view class="bubble-score">+{{ getActionScore(item.key) }}</view>
-          <view class="bubble-count">{{ getTodayCount(item.key) }}/{{ getActionLimit(item.key) }}</view>
+          <image class="flower-image" :src="getFlowerImage(flower)" mode="aspectFit"></image>
+          <view class="flower-name">{{ flower.name || '未命名' }}</view>
         </view>
       </view>
-      <view class="tip">点击气泡收集能量，每日有次数上限。</view>
+      <view v-if="showFloatScore" class="float-score">+{{ floatScore }}</view>
+      <view v-if="showStageUp" class="stage-up-tip">升级啦！</view>
     </view>
+
+    <bottom-menu
+      active-key="home"
+      :show-center-action="true"
+      :center-disabled="loading || !plant.user_plant_id || isActionDisabled('water')"
+      @centerTap="onWaterTap"
+    />
   </view>
 </template>
 
 <script>
 import { ACTIONS, safeNumber } from '@/common/plant-config.js';
 import { getAuthPayload, hasLogin } from '@/common/auth.js';
+import BottomMenu from '@/components/bottom-menu/index.vue';
 
 const DEFAULT_FLOWER_IMAGE = '/static/flowers/default.svg';
 const FLOWER_IMAGE_MAP = {
@@ -132,10 +106,14 @@ const FLOWER_IMAGE_MAP = {
 };
 
 export default {
+  components: {
+    BottomMenu
+  },
   data() {
     return {
       loading: false,
       actions: ACTIONS,
+      weatherText: '晴天 26°',
       user: {},
       garden: {
         current_user_plant_id: '',
@@ -148,15 +126,64 @@ export default {
         today_action_count: {}
       },
       heroPulse: false,
+      hoveredFlowerId: '',
       showFloatScore: false,
       floatScore: 0,
       showStageUp: false
     };
   },
+  computed: {
+    displayName() {
+      return this.user.display_name || this.user.nickname || this.user.username || '芸萍的花园';
+    },
+    levelText() {
+      const totalGrowth = safeNumber(this.user.total_growth, 0);
+      return Math.max(1, Math.floor(totalGrowth / 120) + 1);
+    },
+    rankText() {
+      const rank = safeNumber(this.user.rank, 0);
+      return rank > 0 ? rank : 47;
+    },
+    displayFlowers() {
+      return (this.garden.flowers || []).filter((item) => {
+        if (!item || !item.user_plant_id) return false;
+        const name = String(item.name || '').trim();
+        if (!name) return false;
+        if (name === '未命名' || name === '未知花种') return false;
+        return true;
+      });
+    },
+    remindText() {
+      if (!this.plant.user_plant_id) return '';
+      if (this.isActionDisabled('water')) return `${this.plant.name || '花朵'}今天已喝饱啦`;
+      return `${this.plant.name || '花朵'}需要浇水了！`;
+    }
+  },
   onShow() {
+    if (!hasLogin()) {
+      uni.reLaunch({ url: '/pages/auth/login' });
+      return;
+    }
+    this.safeHideTabBar();
     this.loadProfile();
   },
+  onHide() {
+    this.safeShowTabBar();
+  },
+  onUnload() {
+    this.safeShowTabBar();
+  },
   methods: {
+    safeHideTabBar() {
+      uni.hideTabBar({
+        fail: () => {}
+      });
+    },
+    safeShowTabBar() {
+      uni.showTabBar({
+        fail: () => {}
+      });
+    },
     async loadProfile() {
       if (!hasLogin()) {
         uni.showToast({ title: '请先登录', icon: 'none' });
@@ -181,8 +208,14 @@ export default {
           flowers: []
         };
         this.plant = result.data.plant || {};
-        if (!this.plant.user_plant_id && this.garden.flowers.length > 0) {
-          this.plant = this.garden.flowers[0];
+        const visibleFlowers = (this.garden.flowers || []).filter((item) => {
+          if (!item || !item.user_plant_id) return false;
+          const name = String(item.name || '').trim();
+          if (!name) return false;
+          return name !== '未命名' && name !== '未知花种';
+        });
+        if (!this.plant.user_plant_id && visibleFlowers.length > 0) {
+          this.plant = visibleFlowers[0];
           this.garden.current_user_plant_id = this.plant.user_plant_id;
         }
       } catch (error) {
@@ -211,8 +244,39 @@ export default {
           uni.showToast({ title: result.msg || '操作失败', icon: 'none' });
           return;
         }
-        const prevStage = this.plant.stage || 'seed';
+        const isIdempotent = !!(result.data && result.data.idempotent);
         const growthDelta = safeNumber(result.data && result.data.growth_delta, 0);
+        if (isIdempotent || growthDelta <= 0) {
+          const nextCount = this.getActionLimit(actionType);
+          this.plant = {
+            ...this.plant,
+            today_action_count: {
+              ...(this.plant.today_action_count || {}),
+              [actionType]: nextCount
+            }
+          };
+          uni.showToast({ title: '今日次数已达上限', icon: 'none' });
+          return;
+        }
+        const prevStage = this.plant.stage || 'seed';
+        const nextCount = this.getTodayCount(actionType) + 1;
+        this.plant = {
+          ...this.plant,
+          growth_value: safeNumber(this.plant.growth_value, 0) + growthDelta,
+          stage: (result.data && result.data.stage) || this.plant.stage,
+          stage_label: (result.data && result.data.stage_label) || this.plant.stage_label,
+          water_level: result.data && typeof result.data.water_level === 'number' ? result.data.water_level : this.plant.water_level,
+          fertilizer_level: result.data && typeof result.data.fertilizer_level === 'number' ? result.data.fertilizer_level : this.plant.fertilizer_level,
+          health_score: result.data && typeof result.data.health_score === 'number' ? result.data.health_score : this.plant.health_score,
+          today_action_count: {
+            ...(this.plant.today_action_count || {}),
+            [actionType]: nextCount
+          }
+        };
+        this.user = {
+          ...this.user,
+          total_growth: safeNumber(this.user.total_growth, 0) + growthDelta
+        };
         this.playEnergyAnimation(growthDelta);
         if (result.data && result.data.stage && result.data.stage !== prevStage) {
           this.playStageUpAnimation();
@@ -241,15 +305,42 @@ export default {
       if (this.loading || this.isActionDisabled(actionType)) return;
       this.doAction(actionType);
     },
-    onSelectFlower(userPlantId) {
-      if (!userPlantId || userPlantId === this.garden.current_user_plant_id) return;
-      const target = this.garden.flowers.find((item) => item.user_plant_id === userPlantId);
-      if (!target) return;
-      this.garden.current_user_plant_id = userPlantId;
-      this.plant = target;
+    onWaterTap() {
+      if (!this.plant.user_plant_id) {
+        uni.showToast({ title: '先去种子商店选一颗花种', icon: 'none' });
+        return;
+      }
+      this.onActionTap('water');
     },
-    isCurrentFlower(userPlantId) {
-      return this.garden.current_user_plant_id === userPlantId;
+    getFlowerLeft(index, total) {
+      if (!total) return '50%';
+      if (total === 1) return '50%';
+      const start = 14;
+      const end = 86;
+      const step = (end - start) / (total - 1);
+      return `${Math.round(start + step * index)}%`;
+    },
+    goSeedShop() {
+      uni.navigateTo({ url: '/pages/flower/seed-shop' });
+    },
+    onSelectFlower(userPlantId) {
+      if (!userPlantId) return;
+      uni.navigateTo({
+        url: `/pages/flower/care?user_plant_id=${userPlantId}`
+      });
+    },
+    onFlowerEnter(userPlantId) {
+      this.hoveredFlowerId = userPlantId || '';
+    },
+    onFlowerLeave() {
+      this.hoveredFlowerId = '';
+    },
+    isHoveredFlower(userPlantId) {
+      return !!userPlantId && this.hoveredFlowerId === userPlantId;
+    },
+    isPulseFlower(userPlantId) {
+      if (!userPlantId || !this.plant.user_plant_id) return false;
+      return this.plant.user_plant_id === userPlantId;
     },
     getFlowerImage(flower) {
       const code = (flower && flower.code) || '';
@@ -299,235 +390,290 @@ export default {
 
 <style>
 .page {
+  min-height: calc(100vh - 88rpx);
   position: relative;
-  min-height: 100vh;
-  padding: 28rpx;
-  background: linear-gradient(180deg, #d7f2e1 0%, #eafaf1 46%, #f8fdf9 100%);
-  overflow: hidden;
+  background: linear-gradient(180deg, #76c6ef 0%, #abd8f2 34%, #c4e4bb 62%, #8eb257 100%);
+  padding: 30rpx 24rpx 246rpx;
+  box-sizing: border-box;
 }
 
-.ambient-layer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.mist {
-  position: absolute;
-  border-radius: 999rpx;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 75%);
-  filter: blur(6rpx);
-}
-
-.mist-1 {
-  width: 320rpx;
-  height: 120rpx;
-  top: 120rpx;
-  left: -30rpx;
-  animation: mistFlow 9s ease-in-out infinite;
-}
-
-.mist-2 {
-  width: 360rpx;
-  height: 140rpx;
-  top: 560rpx;
-  right: -60rpx;
-  animation: mistFlow 11s ease-in-out infinite reverse;
-}
-
-.mist-3 {
-  width: 280rpx;
-  height: 110rpx;
-  top: 1020rpx;
-  left: 110rpx;
-  animation: mistFlow 10s ease-in-out infinite;
-}
-
-.particle {
-  position: absolute;
-  width: 8rpx;
-  height: 8rpx;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 0 10rpx rgba(255, 255, 255, 0.6);
-  animation: twinkle 3.6s ease-in-out infinite;
-}
-
-.p-1 { top: 180rpx; left: 88rpx; }
-.p-2 { top: 240rpx; right: 120rpx; animation-delay: 0.6s; }
-.p-3 { top: 720rpx; left: 150rpx; animation-delay: 1.2s; }
-.p-4 { top: 940rpx; right: 160rpx; animation-delay: 1.8s; }
-
-.forest-scene,
-.energy-card,
-.card {
+.hero-header {
   position: relative;
-  z-index: 1;
-}
-
-.forest-scene,
-.energy-card,
-.card {
-  margin-bottom: 24rpx;
-  border-radius: var(--pf-radius-card);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 12rpx 30rpx rgba(66, 133, 92, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.65);
-}
-
-.forest-scene {
-  position: relative;
-  overflow: hidden;
-  min-height: 470rpx;
-  background: linear-gradient(180deg, #c9eed8 0%, #effcf4 100%);
-}
-
-.scene-sky {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 62%;
-  background: linear-gradient(180deg, #ace8cb 0%, #d7f6e6 100%);
-}
-
-.scene-sky::after {
-  content: '';
-  position: absolute;
-  right: -40rpx;
-  top: -30rpx;
-  width: 260rpx;
-  height: 160rpx;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0) 76%);
-}
-
-.scene-content {
-  position: relative;
-  padding: 28rpx;
   z-index: 3;
 }
 
-.scene-ground {
-  position: absolute;
-  left: -10%;
-  right: -10%;
-  bottom: -56rpx;
-  height: 220rpx;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, #81d397 0%, #62b97c 64%, #4ca566 100%);
-  z-index: 2;
-}
-
-.sun {
-  position: absolute;
-  top: 34rpx;
-  right: 44rpx;
-  width: 76rpx;
-  height: 76rpx;
-  border-radius: 38rpx;
-  background: radial-gradient(circle, #fff3a5 0%, #ffd965 75%, #f6c847 100%);
-  box-shadow: 0 0 32rpx rgba(255, 214, 112, 0.8);
-  z-index: 2;
-  animation: sunFloat 4.8s ease-in-out infinite;
-}
-
-.cloud {
-  position: absolute;
-  height: 28rpx;
-  border-radius: 20rpx;
-  background: rgba(255, 255, 255, 0.86);
-  z-index: 2;
-  box-shadow: 0 6rpx 16rpx rgba(255, 255, 255, 0.2);
-}
-
-.cloud-left {
-  width: 100rpx;
-  top: 66rpx;
-  left: 42rpx;
-  animation: cloudDriftLeft 8s ease-in-out infinite;
-}
-
-.cloud-right {
-  width: 130rpx;
-  top: 116rpx;
-  right: 130rpx;
-  animation: cloudDriftRight 9s ease-in-out infinite;
-}
-
-.hero-top {
+.hero-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.hero-title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: var(--pf-color-text-main);
-}
-
-.hero-badge {
-  padding: 8rpx 18rpx;
-  background: rgba(71, 175, 99, 0.16);
-  color: #3f8654;
-  border-radius: var(--pf-radius-pill);
-  font-size: 22rpx;
-  font-weight: 600;
-}
-
-.hero-plant {
-  margin-top: 16rpx;
-  font-size: 42rpx;
-  font-weight: 700;
-  color: var(--pf-color-primary-dark);
-  text-align: center;
-}
-
-.plant-stage {
-  position: relative;
-  width: 100%;
-  display: flex;
-  justify-content: center;
   margin-top: 8rpx;
 }
 
-.hero-image {
-  width: 214rpx;
-  height: 214rpx;
-  position: relative;
-  z-index: 4;
-  filter: drop-shadow(0 14rpx 16rpx rgba(50, 122, 73, 0.22));
+.profile-pill,
+.weather-pill {
+  background: rgba(255, 255, 255, 0.84);
+  border-radius: 999rpx;
+  box-shadow: 0 8rpx 24rpx rgba(55, 99, 130, 0.16);
 }
 
-.hero-image.pulse {
+.profile-pill {
+  display: flex;
+  align-items: center;
+  padding: 10rpx 22rpx 10rpx 10rpx;
+}
+
+.avatar {
+  width: 62rpx;
+  height: 62rpx;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #f8f6ff 0%, #ecebfd 100%);
+  margin-right: 14rpx;
+  padding: 4rpx;
+  box-sizing: border-box;
+}
+
+.avatar-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffd4a3 0%, #ffbe88 100%);
+  color: #7a4e2d;
+  text-align: center;
+  line-height: 54rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.profile-name {
+  font-size: 32rpx;
+  color: #3f4d52;
+  font-weight: 700;
+}
+
+.profile-level {
+  margin-top: 4rpx;
+  font-size: 21rpx;
+  color: #5f8f57;
+}
+
+.profile-level::before {
+  content: '';
+  display: inline-block;
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: #69b85a;
+  margin-right: 8rpx;
+  vertical-align: middle;
+}
+
+.weather-pill {
+  padding: 12rpx 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.weather-icon {
+  width: 32rpx;
+  height: 32rpx;
+  position: relative;
+  margin-right: 2rpx;
+}
+
+.sun-core {
+  width: 22rpx;
+  height: 22rpx;
+  border-radius: 50%;
+  background: #ffd35f;
+  position: absolute;
+  left: 5rpx;
+  top: 5rpx;
+}
+
+.sun-ring {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  border: 3rpx solid rgba(255, 211, 95, 0.45);
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.weather-text {
+  font-size: 27rpx;
+  color: #566772;
+}
+
+.stats-card {
+  margin-top: 18rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18rpx 12rpx;
+  box-shadow: 0 8rpx 20rpx rgba(47, 94, 124, 0.16);
+}
+
+.stats-col {
+  flex: 1;
+  text-align: center;
+}
+
+.stats-card .stats-label {
+  font-size: 23rpx;
+  color: #66757b;
+}
+
+.stats-card .stats-value {
+  margin-top: 6rpx;
+  font-size: 44rpx;
+  line-height: 1.05;
+  font-weight: 700;
+  color: #273a43;
+}
+
+.stats-divider {
+  width: 2rpx;
+  height: 68rpx;
+  background: #e5edf0;
+}
+
+.notice-bubble {
+  margin-top: 14rpx;
+  margin-left: auto;
+  width: fit-content;
+  max-width: 78%;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.9);
+  color: #5b6170;
+  font-size: 27rpx;
+  padding: 10rpx 18rpx;
+  box-shadow: 0 8rpx 20rpx rgba(59, 102, 132, 0.16);
+  display: flex;
+  align-items: center;
+}
+
+.notice-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #ff5f95;
+  margin-right: 10rpx;
+}
+
+.garden-stage {
+}
+
+.garden-stage::before {
+  content: '';
+  position: absolute;
+  bottom:0;
+  right: 22rpx;
+  width: 156rpx;
+  height: 156rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 212, 104, 0.95) 18%, rgba(255, 255, 255, 0.2) 60%, rgba(255, 255, 255, 0) 78%);
+  box-shadow: 0 0 46rpx rgba(255, 219, 128, 0.56);
+}
+
+.ground-hill {
+  position: absolute;
+  left: -44rpx;
+  right: -44rpx;
+  bottom: 0;
+  height: 640rpx;
+  border-top-left-radius: 20%;
+  border-top-right-radius: 20%;
+  background: linear-gradient(180deg, #8aca54 0%, #7f2b3a 100%);
+}
+
+.plot {
+  position: absolute;
+  left: 40rpx;
+  right: 40rpx;
+  bottom: 320rpx;
+  height: 122rpx;
+  border-radius: 26rpx;
+  background: linear-gradient(180deg, #915c35 0%, #754625 100%);
+  box-shadow: inset 0 -10rpx 0 #512f19, 0 8rpx 12rpx rgba(63, 38, 21, 0.2);
+}
+
+.empty-garden {
+  height: 100%;
+  padding: 16rpx 26rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.empty-title {
+  color: #f4e9db;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.empty-desc {
+  margin-top: 10rpx;
+  color: rgba(255, 238, 218, 0.9);
+  font-size: 22rpx;
+  line-height: 1.45;
+}
+
+.empty-btn {
+  margin-top: 14rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  background: #f4d18d;
+  color: #6f411d;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.flower-point {
+  position: absolute;
+  bottom: 76rpx;
+  width: 106rpx;
+  transform: translateX(-50%);
+  transform-origin: center bottom;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.flower-point.active {
+  transform: translateX(-50%) scale(1.12);
+}
+
+.flower-point.pulse {
   animation: heroPulse 520ms ease;
 }
 
-.glow-ring {
-  position: absolute;
-  bottom: 8rpx;
-  width: 220rpx;
-  height: 44rpx;
-  border-radius: 50%;
-  background: rgba(70, 175, 99, 0.24);
-  z-index: 3;
+.flower-image {
+  width: 106rpx;
+  height: 176rpx;
 }
 
-.glow-ring.glow {
-  animation: ringGlow 700ms ease;
+.flower-name {
+  margin-top: -16rpx;
+  text-align: center;
+  color: #f0f6ff;
+  font-size: 22rpx;
+  text-shadow: 0 2rpx 8rpx rgba(25, 56, 32, 0.5);
 }
 
 .float-score {
   position: absolute;
-  top: 26rpx;
-  right: 180rpx;
+  left: 50%;
+  bottom: 410rpx;
+  transform: translateX(-50%);
   z-index: 5;
   color: #2a9a4d;
-  font-size: 40rpx;
+  font-size: 42rpx;
   font-weight: 700;
   text-shadow: 0 4rpx 12rpx rgba(62, 145, 86, 0.3);
   animation: floatUp 900ms ease forwards;
@@ -535,8 +681,8 @@ export default {
 
 .stage-up-tip {
   position: absolute;
-  top: -4rpx;
   left: 50%;
+  bottom: 490rpx;
   transform: translateX(-50%);
   z-index: 5;
   padding: 8rpx 18rpx;
@@ -549,234 +695,6 @@ export default {
   animation: stagePop 1200ms ease forwards;
 }
 
-.hero-desc {
-  margin-top: 8rpx;
-  color: #6d8673;
-  font-size: 24rpx;
-  text-align: center;
-}
-
-.energy-card {
-  padding: 24rpx 26rpx;
-  backdrop-filter: blur(8rpx);
-}
-.panel-card {
-  padding:20rpx;
-}
-.panel-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14rpx;
-}
-
-.panel-card .panel-head {
-  margin-bottom: 18rpx;
-}
-
-.panel-title-wrap {
-  display: flex;
-  align-items: center;
-}
-
-.panel-dot {
-  width: 14rpx;
-  height: 14rpx;
-  border-radius: 7rpx;
-  margin-right: 10rpx;
-  background: linear-gradient(180deg, #5ec57c 0%, #3da85e 100%);
-  box-shadow: 0 0 10rpx rgba(79, 186, 108, 0.35);
-}
-
-.panel-title {
-  font-size: 30rpx;
-  font-weight: 700;
-  color: var(--pf-color-text-main);
-}
-
-.panel-meta {
-  font-size: 22rpx;
-  color: #6f8a76;
-  padding: 6rpx 14rpx;
-  border-radius: 999rpx;
-  background: #edf7f0;
-  border: 1px solid #dcf0e2;
-}
-
-.energy-label {
-  font-size: 28rpx;
-  color: #355f44;
-  font-weight: 600;
-}
-
-.energy-value {
-  font-size: 26rpx;
-  color: #4c8a5e;
-  font-weight: 600;
-}
-
-.progress-bg {
-  margin-top: 12rpx;
-  height: 18rpx;
-  border-radius: 999rpx;
-  background: linear-gradient(90deg, #e3f0e5 0%, #edf7ef 100%);
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 18rpx;
-  border-radius: var(--pf-radius-pill);
-  background: linear-gradient(90deg, #74cf8d, #4dbd6e 55%, #3ea55d 100%);
-  box-shadow: 0 0 12rpx rgba(74, 188, 108, 0.34);
-}
-
-.stage-hint {
-  margin-top: 10rpx;
-  color: #7a9280;
-  font-size: 22rpx;
-}
-
-.stats-grid {
-  margin-top: 20rpx;
-  display: flex;
-  gap: 16rpx;
-}
-
-.stats-item {
-  flex: 1;
-  background: linear-gradient(180deg, #f6fcf8 0%, #edf8f0 100%);
-  border-radius: 16rpx;
-  text-align: center;
-  padding: 18rpx 0;
-  border: 1px solid #e6f3e9;
-}
-
-.stats-value {
-  font-size: 38rpx;
-  font-weight: 700;
-  color: var(--pf-color-primary-dark);
-}
-
-.stats-label {
-  margin-top: 6rpx;
-  font-size: 22rpx;
-  color: #7d8f81;
-}
-
-.action-panel {
-  padding-bottom: 22rpx;
-}
-
-.action-grid {
-  display: flex;
-  gap: 14rpx;
-}
-
-.action-bubble {
-  flex: 1;
-  border-radius: 24rpx;
-  background: linear-gradient(180deg, #f4fcf7 0%, #e8f6ed 100%);
-  border: 2rpx solid #d6ecdd;
-  text-align: center;
-  padding: 16rpx 6rpx;
-  box-shadow: 0 8rpx 14rpx rgba(82, 148, 104, 0.12);
-  transition: transform 0.18s ease;
-}
-
-.action-bubble:active {
-  transform: translateY(2rpx) scale(0.98);
-}
-
-.action-bubble.disabled {
-  opacity: 0.58;
-}
-
-.bubble-icon {
-  font-size: 38rpx;
-}
-
-.bubble-name {
-  margin-top: 8rpx;
-  font-size: 24rpx;
-  font-weight: 600;
-  color: #2f5f3c;
-}
-
-.bubble-score {
-  margin-top: 4rpx;
-  font-size: 28rpx;
-  color: #39a35a;
-  font-weight: 700;
-}
-
-.bubble-count {
-  margin-top: 4rpx;
-  font-size: 21rpx;
-  color: #86a08d;
-}
-
-.flower-scroll {
-  white-space: nowrap;
-
-}
-
-.flower-list {
-  display: inline-flex;
-  gap: 14rpx;
-  padding-bottom: 6rpx;
-}
-
-.flower-item {
-  min-width: 196rpx;
-  border-radius: 16rpx;
-  border: 2rpx solid #dbeee1;
-  background: linear-gradient(180deg, #f8fcf9 0%, #f0f8f2 100%);
-  padding: 16rpx;
-  box-shadow: 0 8rpx 14rpx rgba(88, 145, 106, 0.1);
-}
-
-.flower-image {
-  width: 92rpx;
-  height: 92rpx;
-  display: block;
-  margin: 0 auto 10rpx;
-}
-
-.flower-item.active {
-  border-color: #58b875;
-  background: linear-gradient(180deg, #eefbf1 0%, #e2f5e8 100%);
-  box-shadow: 0 10rpx 18rpx rgba(71, 173, 99, 0.2);
-}
-
-.flower-name {
-  font-size: 28rpx;
-  color: #2f5f3c;
-  font-weight: 600;
-}
-
-.flower-stage {
-  margin-top: 8rpx;
-  display: inline-block;
-  padding: 4rpx 12rpx;
-  border-radius: 999rpx;
-  font-size: 20rpx;
-  color: #5a8b67;
-  background: #e4f4e8;
-}
-
-.flower-growth {
-  margin-top: 10rpx;
-  font-size: 22rpx;
-  color: #7c9382;
-}
-
-.tip {
-  margin-top: 14rpx;
-  color: #8ca18f;
-  font-size: 24rpx;
-  text-align: center;
-}
-
 @keyframes heroPulse {
   0% {
     transform: scale(1);
@@ -785,87 +703,6 @@ export default {
     transform: scale(1.09);
   }
   100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes cloudDriftLeft {
-  0% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(10rpx);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-@keyframes cloudDriftRight {
-  0% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(-12rpx);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-@keyframes sunFloat {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5rpx);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
-@keyframes mistFlow {
-  0% {
-    transform: translateX(0);
-    opacity: 0.65;
-  }
-  50% {
-    transform: translateX(16rpx);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 0.65;
-  }
-}
-
-@keyframes twinkle {
-  0% {
-    opacity: 0.2;
-    transform: scale(0.9);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-  100% {
-    opacity: 0.2;
-    transform: scale(0.9);
-  }
-}
-
-@keyframes ringGlow {
-  0% {
-    opacity: 0.4;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-  100% {
-    opacity: 0.5;
     transform: scale(1);
   }
 }

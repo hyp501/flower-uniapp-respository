@@ -1,0 +1,52 @@
+[
+  {
+    "code": "rose-basic",
+    "name": "玫瑰",
+    "description": "热烈浪漫，适合每天细心浇灌",
+    "price": 60,
+    "unlock_level": 1,
+    "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "幼苗", "min_growth": 9 }, { "stage": "bloom", "label": "盛放", "min_growth": 18 }],
+    "growth_per_action": { "water": 1, "fertilize": 2, "weed": 1 },
+    "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 },
+    "is_enabled": true
+  },
+  {
+    "code": "sunflower-basic",
+    "name": "向日葵",
+    "description": "阳光型花种，施肥收益更高",
+    "price": 140,
+    "unlock_level": 2,
+    "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "挺拔幼苗", "min_growth": 9 }, { "stage": "bloom", "label": "向阳开花", "min_growth": 18 }],
+    "growth_per_action": { "water": 1, "fertilize": 2, "weed": 1 },
+    "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 },
+    "is_enabled": true
+  },
+  {
+    "code": "lily-basic",
+    "name": "百合",
+    "description": "洁白优雅，除草收益更高",
+    "price": 240,
+    "unlock_level": 3,
+    "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "青嫩芽叶", "min_growth": 9 }, { "stage": "bloom", "label": "清雅盛开", "min_growth": 18 }],
+    "growth_per_action": { "water": 1, "fertilize": 2, "weed": 1 },
+    "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 },
+    "is_enabled": true
+  },
+  { "code": "tulip-pink", "name": "郁金香", "description": "花形挺拔，色彩明快", "price": 120, "unlock_level": 2, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "展叶", "min_growth": 10 }, { "stage": "bloom", "label": "盛放", "min_growth": 20 }], "growth_per_action": { "water": 2, "fertilize": 2, "weed": 1 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "carnation-red", "name": "康乃馨", "description": "花瓣层叠，象征温暖", "price": 160, "unlock_level": 2, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "分枝", "min_growth": 10 }, { "stage": "bloom", "label": "绽放", "min_growth": 20 }], "growth_per_action": { "water": 2, "fertilize": 2, "weed": 1 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "lavender-purple", "name": "薰衣草", "description": "香气安宁，适合静心花园", "price": 220, "unlock_level": 3, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "抽穗", "min_growth": 11 }, { "stage": "bloom", "label": "香氛花穗", "min_growth": 22 }], "growth_per_action": { "water": 2, "fertilize": 3, "weed": 1 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "hydrangea-blue", "name": "绣球花", "description": "团簇饱满，色彩柔和", "price": 260, "unlock_level": 3, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "花球孕育", "min_growth": 12 }, { "stage": "bloom", "label": "团簇盛放", "min_growth": 24 }], "growth_per_action": { "water": 2, "fertilize": 3, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "peony-pink", "name": "牡丹", "description": "雍容华贵，花型饱满", "price": 320, "unlock_level": 4, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "孕蕾", "min_growth": 12 }, { "stage": "bloom", "label": "国色天香", "min_growth": 25 }], "growth_per_action": { "water": 2, "fertilize": 3, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "camellia-red", "name": "山茶花", "description": "花色浓艳，枝叶常青", "price": 360, "unlock_level": 4, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "抽芽", "min_growth": 12 }, { "stage": "bloom", "label": "冬日绽放", "min_growth": 25 }], "growth_per_action": { "water": 2, "fertilize": 3, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "jasmine-white", "name": "茉莉", "description": "洁白清香，气质淡雅", "price": 420, "unlock_level": 5, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "攀援生长", "min_growth": 13 }, { "stage": "bloom", "label": "清香四溢", "min_growth": 26 }], "growth_per_action": { "water": 2, "fertilize": 3, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "orchid-green", "name": "兰花", "description": "清雅高洁，观赏性强", "price": 460, "unlock_level": 5, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "新叶", "min_growth": 13 }, { "stage": "bloom", "label": "幽兰绽香", "min_growth": 26 }], "growth_per_action": { "water": 2, "fertilize": 3, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "hibiscus-red", "name": "扶桑花", "description": "热带风情，花色鲜亮", "price": 520, "unlock_level": 6, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "伸枝", "min_growth": 14 }, { "stage": "bloom", "label": "灿烂盛开", "min_growth": 28 }], "growth_per_action": { "water": 2, "fertilize": 4, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "azalea-pink", "name": "杜鹃", "description": "满枝花簇，热烈明艳", "price": 560, "unlock_level": 6, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "新梢", "min_growth": 14 }, { "stage": "bloom", "label": "花团锦簇", "min_growth": 28 }], "growth_per_action": { "water": 2, "fertilize": 4, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "plumeria-yellow", "name": "鸡蛋花", "description": "香气柔和，热带感十足", "price": 620, "unlock_level": 7, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "展枝", "min_growth": 15 }, { "stage": "bloom", "label": "暖香绽放", "min_growth": 30 }], "growth_per_action": { "water": 2, "fertilize": 4, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "dahlia-red", "name": "大丽花", "description": "花型丰富，色彩浓烈", "price": 660, "unlock_level": 7, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "繁叶", "min_growth": 15 }, { "stage": "bloom", "label": "层层绽放", "min_growth": 30 }], "growth_per_action": { "water": 2, "fertilize": 4, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "lotus-pink", "name": "荷花", "description": "亭亭净植，夏日主角", "price": 720, "unlock_level": 8, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "浮叶", "min_growth": 16 }, { "stage": "bloom", "label": "清莲盛放", "min_growth": 32 }], "growth_per_action": { "water": 3, "fertilize": 4, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "cherry-blossom", "name": "樱花", "description": "春日浪漫，轻盈绽放", "price": 760, "unlock_level": 8, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "抽枝", "min_growth": 16 }, { "stage": "bloom", "label": "樱云满枝", "min_growth": 32 }], "growth_per_action": { "water": 3, "fertilize": 4, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "wisteria-violet", "name": "紫藤", "description": "垂穗成瀑，梦幻飘逸", "price": 800, "unlock_level": 8, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "攀援", "min_growth": 16 }, { "stage": "bloom", "label": "紫瀑流光", "min_growth": 33 }], "growth_per_action": { "water": 3, "fertilize": 4, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "iris-blue", "name": "鸢尾", "description": "花瓣挺阔，线条凌厉", "price": 880, "unlock_level": 8, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "剑叶伸展", "min_growth": 17 }, { "stage": "bloom", "label": "蓝紫绽放", "min_growth": 34 }], "growth_per_action": { "water": 3, "fertilize": 4, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true },
+  { "code": "magnolia-white", "name": "玉兰", "description": "花姿端庄，气质高雅", "price": 920, "unlock_level": 8, "stage_rules": [{ "stage": "seed", "label": "种子", "min_growth": 0 }, { "stage": "sprout", "label": "抽芽", "min_growth": 18 }, { "stage": "bloom", "label": "玉瓣初绽", "min_growth": 35 }], "growth_per_action": { "water": 3, "fertilize": 4, "weed": 2 }, "daily_action_limit": { "water": 1, "fertilize": 1, "weed": 1 }, "is_enabled": true }
+]

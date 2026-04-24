@@ -1,0 +1,90 @@
+{
+  "bsonType": "object",
+  "required": [
+    "uid",
+    "user_plant_id",
+    "consignee",
+    "mobile",
+    "region",
+    "address",
+    "status"
+  ],
+  "permission": {
+    "read": false,
+    "create": false,
+    "update": false,
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "uid": {
+      "bsonType": "string",
+      "title": "uni-id 用户ID"
+    },
+    "user_plant_id": {
+      "bsonType": "string",
+      "title": "用户花朵ID",
+      "foreignKey": "pf_user_plants._id"
+    },
+    "plant_id": {
+      "bsonType": "string",
+      "title": "花种ID",
+      "foreignKey": "pf_plants._id"
+    },
+    "plant_name": {
+      "bsonType": "string",
+      "title": "花种名称"
+    },
+    "consignee": {
+      "bsonType": "string",
+      "title": "收货人"
+    },
+    "mobile": {
+      "bsonType": "string",
+      "title": "手机号"
+    },
+    "region": {
+      "bsonType": "string",
+      "title": "地区"
+    },
+    "address": {
+      "bsonType": "string",
+      "title": "详细地址"
+    },
+    "status": {
+      "bsonType": "string",
+      "title": "订单状态",
+      "defaultValue": "pending_ship",
+      "enum": [
+        {
+          "text": "待发货",
+          "value": "pending_ship"
+        },
+        {
+          "text": "已发货",
+          "value": "shipped"
+        },
+        {
+          "text": "已签收",
+          "value": "received"
+        }
+      ]
+    },
+    "create_time": {
+      "bsonType": "timestamp",
+      "description": "创建时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    },
+    "update_time": {
+      "bsonType": "timestamp",
+      "description": "更新时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    }
+  }
+}

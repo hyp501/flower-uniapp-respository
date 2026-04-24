@@ -42,6 +42,14 @@
         {
           "text": "除草",
           "value": "weed"
+        },
+        {
+          "text": "修剪",
+          "value": "prune"
+        },
+        {
+          "text": "分享",
+          "value": "share"
         }
       ]
     },

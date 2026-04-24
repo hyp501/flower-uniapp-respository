@@ -1,0 +1,1 @@
+<view class="app-bottom-menu-wrap"><view class="app-bottom-menu"><view wx:for="{{a}}" wx:for-item="item" wx:key="c" class="{{['app-bottom-menu-item', item.d && 'active']}}" bindtap="{{item.e}}"><image class="app-bottom-menu-icon" src="{{item.a}}" mode="aspectFit"></image><view class="app-bottom-menu-text">{{item.b}}</view></view></view></view>

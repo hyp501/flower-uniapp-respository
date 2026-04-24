@@ -11,15 +11,20 @@ const uniID = require('uni-id');
 const actionNameMap = {
   water: '浇水',
   fertilize: '施肥',
-  weed: '除草'
+  weed: '除草',
+  prune: '修剪',
+  share: '分享'
 };
 
 async function getUid(event, context) {
+  const contextUid = context && context.auth && context.auth.uid;
+  if (contextUid) return contextUid;
   if (event && event.uniIdToken) {
     const payload = await uniID.checkToken(event.uniIdToken);
     if (!payload.code && payload.uid) return payload.uid;
+    return '';
   }
-  return (event && event.uid) || (context && context.auth && context.auth.uid) || '';
+  return '';
 }
 
 function getTodayStr() {
@@ -39,6 +44,20 @@ function resolveStageLabel(stageRules, growthValue) {
   return { stage, stageLabel: label };
 }
 
+function clamp(value, min = 0, max = 100) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return min;
+  if (num < min) return min;
+  if (num > max) return max;
+  return Math.round(num);
+}
+
+function normalizeStat(value, fallback) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return fallback;
+  return clamp(num, 0, 100);
+}
+
 exports.main = async (event, context) => {
   const uid = await getUid(event, context);
   const actionType = event.action_type;
@@ -49,7 +68,7 @@ exports.main = async (event, context) => {
     return { code: 401, msg: '请先登录' };
   }
 
-  if (!['water', 'fertilize', 'weed'].includes(actionType)) {
+  if (!['water', 'fertilize', 'weed', 'prune', 'share'].includes(actionType)) {
     return { code: 400, msg: '无效动作类型' };
   }
 
@@ -85,19 +104,13 @@ exports.main = async (event, context) => {
   // 幂等命中：同一用户同一天同一动作重复请求返回首次成功结果
   const existingRes = await actionsCol.where({ idempotency_key: idempotencyKey }).limit(1).get();
   if (existingRes.data.length > 0) {
-    const existing = existingRes.data[0];
-    const currentGrowth = userPlant.growth_value || 0;
-    const stageInfo = resolveStageLabel(plant.stage_rules, currentGrowth);
     return {
-      code: 0,
-      msg: `${actionNameMap[actionType]}已完成（幂等返回）`,
+      code: 429,
+      msg: `${actionNameMap[actionType]}今日次数已达上限`,
       data: {
         idempotent: true,
         action_type: actionType,
-        growth_delta: existing.growth_delta,
-        growth_value: currentGrowth,
-        stage: stageInfo.stage,
-        stage_label: stageInfo.stageLabel
+        growth_delta: 0
       }
     };
   }
@@ -113,9 +126,34 @@ exports.main = async (event, context) => {
     return { code: 429, msg: `${actionNameMap[actionType]}今日次数已达上限` };
   }
 
-  const growthDelta = ((plant.growth_per_action || {})[actionType] || 1);
+  const growthDelta = actionType === 'share' ? 2 : ((plant.growth_per_action || {})[actionType] || 1);
   const nextGrowth = (userPlant.growth_value || 0) + growthDelta;
   const stageInfo = resolveStageLabel(plant.stage_rules, nextGrowth);
+  const baseWater = normalizeStat(userPlant.water_level, 60);
+  const baseFertilizer = normalizeStat(userPlant.fertilizer_level, 60);
+  const baseHealth = normalizeStat(userPlant.health_score, 100);
+
+  let nextWater = baseWater;
+  let nextFertilizer = baseFertilizer;
+  let nextHealth = baseHealth;
+
+  if (actionType === 'water') {
+    nextWater = clamp(baseWater + 24);
+    nextFertilizer = clamp(baseFertilizer - 6);
+    nextHealth = clamp(baseHealth + 6);
+  } else if (actionType === 'fertilize') {
+    nextFertilizer = clamp(baseFertilizer + 24);
+    nextWater = clamp(baseWater - 6);
+    nextHealth = clamp(baseHealth + 5);
+  } else if (actionType === 'weed') {
+    nextHealth = clamp(baseHealth + 14);
+    nextWater = clamp(baseWater + 4);
+    nextFertilizer = clamp(baseFertilizer + 4);
+  } else if (actionType === 'prune') {
+    nextHealth = clamp(baseHealth + 10);
+    nextWater = clamp(baseWater - 3);
+    nextFertilizer = clamp(baseFertilizer - 3);
+  }
 
   await actionsCol.add({
     uid,
@@ -130,6 +168,9 @@ exports.main = async (event, context) => {
   await userPlantsCol.doc(userPlant._id).update({
     growth_value: dbCmd.inc(growthDelta),
     stage: stageInfo.stage,
+    water_level: nextWater,
+    fertilizer_level: nextFertilizer,
+    health_score: nextHealth,
     last_action_date: today,
     update_time: Date.now()
   });
@@ -151,7 +192,10 @@ exports.main = async (event, context) => {
       growth_delta: growthDelta,
       growth_value: nextGrowth,
       stage: stageInfo.stage,
-      stage_label: stageInfo.stageLabel
+      stage_label: stageInfo.stageLabel,
+      water_level: nextWater,
+      fertilizer_level: nextFertilizer,
+      health_score: nextHealth
     }
   };
 };

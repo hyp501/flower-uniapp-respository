@@ -1,13 +1,9 @@
 <template>
   <view class="page">
-    <view class="nav-bar">
-      <view class="back-btn" @click="goBack">‹ 返回</view>
-      <view class="nav-title">种子商店</view>
-      <view class="nav-placeholder"></view>
-    </view>
 
 
     <view class="hero">
+      <view class="status-safe" :style="{ height: statusBarHeight + 'px' }"></view>
       <view class="hero-title-row">
         <view class="hero-title-wrap">
           <text class="hero-flower">✿</text>
@@ -18,17 +14,19 @@
       <view class="hero-sub">选一颗种子，开始你的故事</view>
     </view>
 
-    <view class="category-row">
-      <view
-        v-for="item in categories"
-        :key="item.key"
-        class="category-pill"
-        :class="{ active: activeCategory === item.key }"
-        @click="activeCategory = item.key"
-      >
-        {{ item.label }}
+    <scroll-view class="category-scroll" scroll-x show-scrollbar="false">
+      <view class="category-row">
+        <view
+          v-for="item in categories"
+          :key="item.key"
+          class="category-pill"
+          :class="{ active: activeCategory === item.key }"
+          @click="activeCategory = item.key"
+        >
+          {{ item.label }}
+        </view>
       </view>
-    </view>
+    </scroll-view>
 
     <view class="card-grid">
       <view v-for="seed in filteredSeeds" :key="seed.key" class="seed-card">
@@ -64,9 +62,77 @@ import BottomMenu from '@/components/bottom-menu/index.vue';
 const FLOWER_IMAGE_MAP = {
   'rose-basic': '/static/flowers/rose.svg',
   'sunflower-basic': '/static/flowers/sunflower.svg',
-  'lily-basic': '/static/flowers/lily.svg'
+  'lily-basic': '/static/flowers/lily.svg',
+  'tulip-pink': '/static/flowers/lily.svg',
+  'carnation-red': '/static/flowers/rose.svg',
+  'lavender-purple': '/static/flowers/lily.svg',
+  'hydrangea-blue': '/static/flowers/lily.svg',
+  'peony-pink': '/static/flowers/rose.svg',
+  'camellia-red': '/static/flowers/rose.svg',
+  'jasmine-white': '/static/flowers/lily.svg',
+  'orchid-green': '/static/flowers/lily.svg',
+  'hibiscus-red': '/static/flowers/rose.svg',
+  'azalea-pink': '/static/flowers/rose.svg',
+  'plumeria-yellow': '/static/flowers/sunflower.svg',
+  'dahlia-red': '/static/flowers/rose.svg',
+  'lotus-pink': '/static/flowers/lily.svg',
+  'cherry-blossom': '/static/flowers/rose.svg',
+  'wisteria-violet': '/static/flowers/lily.svg',
+  'iris-blue': '/static/flowers/lily.svg',
+  'magnolia-white': '/static/flowers/lily.svg'
 };
-const BG_COLORS = ['#f2c9da', '#ececc9', '#f5d8e1', '#d6c4ea', '#cfe5d5', '#d8d0ea'];
+const FLOWER_EMOJI_MAP = {
+  'rose-basic': '🌹',
+  'sunflower-basic': '🌻',
+  'lily-basic': '💮',
+  'tulip-pink': '🌷',
+  'carnation-red': '💐',
+  'lavender-purple': '🪻',
+  'hydrangea-blue': '🩵',
+  'peony-pink': '🌸',
+  'camellia-red': '🌺',
+  'jasmine-white': '🤍',
+  'orchid-green': '🪴',
+  'hibiscus-red': '🌺',
+  'azalea-pink': '🌸',
+  'plumeria-yellow': '🌼',
+  'dahlia-red': '🌼',
+  'lotus-pink': '🪷',
+  'cherry-blossom': '🌸',
+  'wisteria-violet': '🪻',
+  'iris-blue': '💠',
+  'magnolia-white': '🤍'
+};
+const CATEGORY_META = {
+  rose: { label: '玫瑰系', icon: '🌹' },
+  sunflower: { label: '向日系', icon: '🌻' },
+  lily: { label: '百合系', icon: '💮' },
+  tulip: { label: '郁金系', icon: '🌷' },
+  carnation: { label: '康乃馨系', icon: '💐' },
+  lavender: { label: '薰衣草系', icon: '🪻' },
+  hydrangea: { label: '绣球系', icon: '🌸' },
+  peony: { label: '牡丹系', icon: '🌸' },
+  camellia: { label: '山茶系', icon: '🌺' },
+  jasmine: { label: '茉莉系', icon: '🤍' },
+  orchid: { label: '兰花系', icon: '🪴' },
+  hibiscus: { label: '扶桑系', icon: '🌺' },
+  azalea: { label: '杜鹃系', icon: '🌸' },
+  plumeria: { label: '鸡蛋花系', icon: '🌼' },
+  dahlia: { label: '大丽花系', icon: '🌼' },
+  lotus: { label: '荷花系', icon: '🪷' },
+  cherry: { label: '樱花系', icon: '🌸' },
+  wisteria: { label: '紫藤系', icon: '🪻' },
+  iris: { label: '鸢尾系', icon: '💠' },
+  magnolia: { label: '玉兰系', icon: '🤍' },
+  other: { label: '其他', icon: '🌸' }
+};
+const BG_COLORS = ['#f8d9e6', '#f4f2d9', '#ead8f7', '#d8f0de', '#f9dde8', '#e3ddf6'];
+const TAG_STYLES = [
+  { label: '热门', color: '#f2bc2f' },
+  { label: '新品', color: '#ea78b5' },
+  { label: '稀有', color: '#9b63dc' },
+  { label: '限定', color: '#e76472' }
+];
 
 export default {
   components: {
@@ -79,7 +145,8 @@ export default {
       totalGrowth: 0,
       userLevel: 1,
       currentUserPlantId: '',
-      seeds: []
+      seeds: [],
+      statusBarHeight: 20
     };
   },
   computed: {
@@ -102,6 +169,7 @@ export default {
     }
   },
   onShow() {
+    this.initSafeArea();
     if (!hasLogin()) {
       uni.redirectTo({ url: '/pages/auth/login' });
       return;
@@ -109,6 +177,15 @@ export default {
     this.loadProfile();
   },
   methods: {
+    initSafeArea() {
+      try {
+        const info = uni.getSystemInfoSync();
+        const height = Number(info && info.statusBarHeight);
+        this.statusBarHeight = Number.isFinite(height) && height > 0 ? height : 20;
+      } catch (error) {
+        this.statusBarHeight = 20;
+      }
+    },
     async loadProfile() {
       if (!hasLogin()) {
         uni.showToast({ title: '请先登录', icon: 'none' });
@@ -144,6 +221,13 @@ export default {
     toSeedCard(item, index) {
       const code = item.code || '';
       const category = this.getCategory(code);
+      const isPlanted = item.is_planted === true;
+      const isCurrent = isPlanted && (
+        !!item.is_current || (item.user_plant_id && item.user_plant_id === this.currentUserPlantId)
+      );
+      const tagMeta = item.tag
+        ? { label: item.tag, color: item.tagColor || '#caa27b' }
+        : TAG_STYLES[index % TAG_STYLES.length];
       return {
         key: code || item.plant_id || item.user_plant_id || `seed-${index}`,
         code,
@@ -151,15 +235,19 @@ export default {
         user_plant_id: item.user_plant_id,
         name: item.name || '未命名花种',
         desc: item.description || '开始种植后即可解锁成长旅程',
-        price: 0,
+        price: Math.max(0, Math.floor(Number(item.price) || 0)),
         unlock_level: Number(item.unlock_level) > 0 ? Number(item.unlock_level) : 1,
         bgColor: BG_COLORS[index % BG_COLORS.length],
         image: FLOWER_IMAGE_MAP[code] || '',
-        emoji: '🌸',
+        emoji: FLOWER_EMOJI_MAP[code] || this.getCategoryIcon(category),
         available: item.is_enabled !== false,
+        is_planted: isPlanted,
+        is_current: isCurrent,
         category,
         categoryLabel: this.getCategoryLabel(category),
-        categoryIcon: this.getCategoryIcon(category)
+        categoryIcon: this.getCategoryIcon(category),
+        tag: tagMeta.label,
+        tagColor: tagMeta.color
       };
     },
     getCategory(code) {
@@ -167,27 +255,18 @@ export default {
       return code.split('-')[0] || 'other';
     },
     getCategoryLabel(category) {
-      const map = {
-        rose: '玫瑰系',
-        sunflower: '向日系',
-        lily: '百合系',
-        other: '其他'
-      };
-      return map[category] || `${category}系`;
+      const meta = CATEGORY_META[category];
+      if (meta && meta.label) return meta.label;
+      return `${category}系`;
     },
     getCategoryIcon(category) {
-      const map = {
-        rose: '🌹',
-        sunflower: '🌻',
-        lily: '💮',
-        other: '🌸'
-      };
-      return map[category] || '🌸';
+      const meta = CATEGORY_META[category];
+      return (meta && meta.icon) || '🌸';
     },
     getPlantButtonText(seed) {
       if (!seed.available) return '暂不可用';
       if (!this.isSeedUnlocked(seed)) return `Lv${seed.unlock_level}解锁`;
-      if (seed.user_plant_id === this.currentUserPlantId) return '已种下';
+      if (seed.is_planted) return '已种下';
       return '种下';
     },
     isSeedUnlocked(seed) {
@@ -202,11 +281,11 @@ export default {
         uni.showToast({ title: `达到Lv${seed.unlock_level}后解锁`, icon: 'none' });
         return;
       }
-      if (!seed.user_plant_id) {
+      if (!seed.user_plant_id && !seed.plant_id && !seed.code) {
         uni.showToast({ title: '种子数据异常，请刷新', icon: 'none' });
         return;
       }
-      if (seed.user_plant_id === this.currentUserPlantId) {
+      if (seed.is_planted) {
         uni.showToast({ title: '这颗种子已经种下啦', icon: 'none' });
         return;
       }
@@ -254,8 +333,9 @@ export default {
 <style>
 .page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #0f391d 0%, #225226 20%, #f2e8d8 20%, #f2e8d8 100%);
-  padding: calc(env(safe-area-inset-top) + 96rpx) 0 calc(env(safe-area-inset-bottom) + 128rpx);
+  background: #f4e7d6;
+  padding:0;
+  /* padding: calc(env(safe-area-inset-top) + 96rpx) 0 calc(env(safe-area-inset-bottom) + 128rpx); */
 }
 
 .nav-bar {
@@ -266,7 +346,7 @@ export default {
   z-index: 20;
   height: calc(env(safe-area-inset-top) + 88rpx);
   padding-top: env(safe-area-inset-top);
-  background: #173f1f;
+  background: #ba8f65;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -277,13 +357,13 @@ export default {
 .back-btn {
   min-width: 120rpx;
   color: #ffffff;
-  font-size: 30rpx;
+  font-size: 27rpx;
   font-weight: 600;
 }
 
 .nav-title {
-  color: #d8f2d7;
-  font-size: 30rpx;
+  color: #fff;
+  font-size: 29rpx;
   font-weight: 700;
 }
 
@@ -300,20 +380,23 @@ export default {
 }
 
 .hero {
-  margin: 0 22rpx;
-  background: linear-gradient(180deg, #bc9168 0%, #b68961 100%);
-  border-radius: 36rpx 36rpx 0 0;
-  padding: 30rpx 24rpx 26rpx;
+  background: #ba8f65;
+ 
+  padding: 36rpx 24rpx 20rpx;
   position: relative;
   overflow: hidden;
 }
 
+.status-safe {
+  width: 100%;
+}
+
 .hero::after {
   content: '';
-  width: 230rpx;
-  height: 230rpx;
+  width: 200rpx;
+  height: 200rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.12);
   position: absolute;
   right: -60rpx;
   top: -32rpx;
@@ -330,81 +413,89 @@ export default {
 .hero-title-wrap {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: 8rpx;
 }
 
 .hero-flower {
   color: #ff58b0;
-  font-size: 34rpx;
+  font-size: 24rpx;
 }
 
 .hero-title {
-  font-size: 52rpx;
+  font-size: 36rpx;
   color: #fff;
   font-weight: 700;
 }
 
 .score-pill {
-  background: rgba(255, 240, 238, 0.35);
+  background: rgba(255, 244, 235, 0.3);
   border-radius: 999rpx;
-  padding: 10rpx 24rpx;
+  padding: 8rpx 16rpx;
   color: #fff;
-  font-size: 32rpx;
+  font-size: 22rpx;
   font-weight: 700;
   position: relative;
   z-index: 1;
 }
 
 .hero-sub {
-  margin-top: 12rpx;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 28rpx;
+  margin-top: 10rpx;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 22rpx;
+  margin-bottom: 0;
   position: relative;
   z-index: 1;
 }
 
-.category-row {
+.category-scroll {
   margin: 0 22rpx;
-  background: #f2e8d8;
+  background: #f4e7d6;
+  white-space: nowrap;
+}
+
+.category-row {
   display: flex;
-  gap: 14rpx;
-  padding: 16rpx 0 18rpx;
+  gap: 12rpx;
+  padding: 16rpx 2rpx 18rpx;
+  width: max-content;
 }
 
 .category-pill {
-  min-width: 130rpx;
+  min-width: 116rpx;
   text-align: center;
-  background: #f6f1e8;
+  background: #fff;
   border-radius: 999rpx;
-  padding: 12rpx 18rpx;
-  font-size: 28rpx;
+  padding: 10rpx 16rpx;
+  font-size: 20rpx;
+  font-weight: 600;
   color: #7e5f43;
-  border: 1px solid #ddc8ac;
+  border: 2rpx solid #d7c4ad;
 }
 
 .category-pill.active {
-  background: #9a6b42;
+  background: #9f7249;
   color: #fff;
-  border-color: #9a6b42;
+  border-color: #9f7249;
 }
 
 .card-grid {
   margin: 0 22rpx;
   display: flex;
   flex-wrap: wrap;
-  gap: 16rpx;
+  gap: 18rpx 14rpx;
+  padding-bottom: 8rpx;
 }
 
 .seed-card {
-  width: calc((100% - 16rpx) / 2);
-  border-radius: 30rpx;
+  width: calc((100% - 14rpx) / 2);
+  border-radius: 28rpx;
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 10rpx 24rpx rgba(87, 65, 35, 0.12);
+  box-shadow: 0 8rpx 18rpx rgba(107, 80, 47, 0.08);
 }
 
 .seed-hero {
-  height: 174rpx;
+  height: 176rpx;
   position: relative;
   display: flex;
   align-items: center;
@@ -413,67 +504,85 @@ export default {
 
 .seed-tag {
   position: absolute;
-  left: 14rpx;
-  top: 14rpx;
+  left: 12rpx;
+  top: 12rpx;
   color: #fff;
-  font-size: 22rpx;
+  font-size: 18rpx;
+  font-weight: 700;
   line-height: 1;
-  padding: 8rpx 10rpx;
-  border-radius: 10rpx;
+  padding: 7rpx 12rpx;
+  border-radius: 14rpx;
 }
 
 .seed-image {
-  width: 112rpx;
-  height: 112rpx;
+  width: 100rpx;
+  height: 100rpx;
 }
 
 .seed-emoji {
-  font-size: 82rpx;
+  font-size: 74rpx;
 }
 
 .seed-body {
-  background: #f6f6f6;
-  padding: 16rpx 18rpx 18rpx;
+  background: #fff;
+  padding: 16rpx 16rpx 16rpx;
 }
 
 .seed-name {
-  color: #324334;
-  font-size: 34rpx;
+  color: #34403a;
+  font-size: 27rpx;
   font-weight: 700;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .seed-desc {
-  margin-top: 8rpx;
-  color: #758678;
-  font-size: 24rpx;
-  min-height: 66rpx;
+  margin-top: 6rpx;
+  color: #8da09a;
+  font-size: 19rpx;
+  margin-bottom: 0;
+  min-height: 52rpx;
+  line-height: 1.38;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .seed-foot {
-  margin-top: 8rpx;
+  margin-top: 12rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12rpx;
 }
 
 .seed-price {
-  color: #ab5b57;
-  font-size: 34rpx;
+  color: #9f5b43;
+  font-size: 30rpx;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .plant-btn {
-  background: #a9794d;
+  background: linear-gradient(180deg, #b6875e 0%, #9f7149 100%);
   color: #fff;
   border-radius: 999rpx;
-  font-size: 26rpx;
-  min-width: 98rpx;
+  font-size: 20rpx;
+  font-weight: 700;
+  min-width: 88rpx;
   text-align: center;
-  padding: 8rpx 16rpx;
+  padding: 8rpx 14rpx;
+  line-height: 1.25;
+  white-space: nowrap;
+  box-shadow: 0 6rpx 10rpx rgba(141, 99, 58, 0.18);
 }
 
 .plant-btn.disabled {
-  background: #c3b8ab;
+  background: #cbc0b3;
+  box-shadow: none;
 }
 
 </style>

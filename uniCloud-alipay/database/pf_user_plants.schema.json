@@ -55,10 +55,59 @@
       "title": "健康度",
       "defaultValue": 100
     },
+    "water_level": {
+      "bsonType": "int",
+      "title": "水分值(0-100)",
+      "defaultValue": 60,
+      "minimum": 0,
+      "maximum": 100
+    },
+    "fertilizer_level": {
+      "bsonType": "int",
+      "title": "肥力值(0-100)",
+      "defaultValue": 60,
+      "minimum": 0,
+      "maximum": 100
+    },
     "last_action_date": {
       "bsonType": "string",
       "title": "最近行为日期",
       "description": "YYYY-MM-DD"
+    },
+    "exchange_status": {
+      "bsonType": "string",
+      "title": "兑换状态",
+      "defaultValue": "none",
+      "enum": [
+        {
+          "text": "未兑换",
+          "value": "none"
+        },
+        {
+          "text": "已兑换待发货",
+          "value": "ordered"
+        },
+        {
+          "text": "兑换处理中",
+          "value": "ordering"
+        },
+        {
+          "text": "已发货",
+          "value": "shipped"
+        },
+        {
+          "text": "已签收",
+          "value": "received"
+        }
+      ]
+    },
+    "exchange_order_id": {
+      "bsonType": "string",
+      "title": "兑换订单ID"
+    },
+    "exchange_time": {
+      "bsonType": "timestamp",
+      "title": "兑换时间"
     },
     "create_time": {
       "bsonType": "timestamp",

@@ -1,0 +1,10 @@
+{
+  "name": "plant-reset-user-data",
+  "version": "1.0.0",
+  "description": "reset test data for current user",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "uni-id": "file:../../../uni_modules/uni-id/uniCloud/cloudfunctions/common/uni-id"
+  }
+}

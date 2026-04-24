@@ -14,18 +14,18 @@
           <view class="profile-name">{{ displayName }}</view>
           <view class="level-chip">
             <text class="level-gem earned">💎</text>
-            <text>花匠 · Lv.{{ currentLevel }}</text>
+            <text>{{ currentTitle }} · Lv.{{ currentLevel }}</text>
           </view>
         </view>
       </view>
 
       <view class="level-progress-wrap">
         <view class="level-labels">
-          <text>🌱 Lv.{{ currentLevel }} 资深园丁</text>
+          <text>🌱 Lv.{{ currentLevel }} {{ currentTitle }}</text>
         <text class="level-next">
           {{ isMaxLevel ? '已达满级 Lv.' + currentLevel : '再攒 ' + nextLevelNeed + ' 积分升 Lv.' + (currentLevel + 1) }}
         </text>
-        <text>🌸 Lv.{{ isMaxLevel ? currentLevel : currentLevel + 1 }} 花神</text>
+        <text>🌸 Lv.{{ isMaxLevel ? currentLevel : currentLevel + 1 }} {{ nextTitle }}</text>
         </view>
         <view class="level-track">
           <view class="level-fill" :style="{ width: `${levelProgress}%` }"></view>
@@ -57,17 +57,6 @@
       <view class="menu-group-label">📂 资产</view>
       <view class="menu-card">
         <view class="menu-row">
-          <view class="menu-icon-box icon-green">🌿</view>
-          <view class="menu-content">
-            <view class="menu-primary">我的积分</view>
-            <view class="menu-secondary">当前积分总数</view>
-          </view>
-          <view class="menu-meta">
-            <text class="menu-sub">{{ totalGrowth }}</text>
-            <text class="menu-arrow-icon">›</text>
-          </view>
-        </view>
-        <view class="menu-row">
           <view class="menu-icon-box icon-pink">🌺</view>
           <view class="menu-content">
             <view class="menu-primary">我的花卉收藏</view>
@@ -82,6 +71,26 @@
 
       <view class="menu-group-label">🏅 成就</view>
       <view class="menu-card">
+        <view class="menu-row" @click="goRedeem">
+          <view class="menu-icon-box icon-red">🎁</view>
+          <view class="menu-content">
+            <view class="menu-primary">鲜花兑换</view>
+            <view class="menu-secondary">盛开的花可兑换实物鲜花并填写收货地址</view>
+          </view>
+          <view class="menu-meta">
+            <text class="menu-arrow-icon">›</text>
+          </view>
+        </view>
+        <view class="menu-row" @click="goTimeline">
+          <view class="menu-icon-box icon-teal">📜</view>
+          <view class="menu-content">
+            <view class="menu-primary">我的记录</view>
+            <view class="menu-secondary">查看每日护理日志与成长轨迹</view>
+          </view>
+          <view class="menu-meta">
+            <text class="menu-arrow-icon">›</text>
+          </view>
+        </view>
         <view class="menu-row" @click="goRanking">
           <view class="menu-icon-box icon-orange">🏆</view>
           <view class="menu-content">
@@ -139,7 +148,7 @@
             <text class="menu-arrow-icon">›</text>
           </view>
         </view> -->
-        <view class="menu-row">
+        <view class="menu-row" @click="goRules">
           <view class="menu-icon-box icon-grey">ℹ️</view>
           <view class="menu-content">
             <view class="menu-primary">关于小程序</view>
@@ -162,7 +171,7 @@
 <script>
 import { getAuthPayload, hasLogin } from '@/common/auth.js';
 import BottomMenu from '@/components/bottom-menu/index.vue';
-import { getLevelInfoByGrowth } from '@/common/level-config.js';
+import { getLevelInfoByGrowth, getLevelTitle } from '@/common/level-config.js';
 
 export default {
   components: {
@@ -187,6 +196,9 @@ export default {
     };
   },
   computed: {
+    levelInfo() {
+      return getLevelInfoByGrowth(this.totalGrowth);
+    },
     displayName() {
       return this.user.display_name || '花友的花园';
     },
@@ -200,23 +212,23 @@ export default {
       return this.toNumber(this.garden.total_flowers);
     },
     currentLevel() {
-      const level = Number(this.user.user_level);
-      if (Number.isFinite(level) && level > 0) return level;
-      return getLevelInfoByGrowth(this.totalGrowth).user_level;
+      return this.levelInfo.user_level;
+    },
+    currentTitle() {
+      return this.levelInfo.user_title || getLevelTitle(this.currentLevel);
+    },
+    nextTitle() {
+      if (this.isMaxLevel) return this.currentTitle;
+      return this.levelInfo.next_level_title || getLevelTitle(this.currentLevel + 1);
     },
     levelProgress() {
-      const progress = Number(this.user.level_progress);
-      if (Number.isFinite(progress)) return Math.max(0, Math.min(100, progress));
-      return getLevelInfoByGrowth(this.totalGrowth).level_progress;
+      return this.levelInfo.level_progress;
     },
     nextLevelNeed() {
-      const need = Number(this.user.next_level_need);
-      if (Number.isFinite(need)) return Math.max(0, need);
-      return getLevelInfoByGrowth(this.totalGrowth).next_level_need;
+      return this.levelInfo.next_level_need;
     },
     isMaxLevel() {
-      if (typeof this.user.is_max_level === 'boolean') return this.user.is_max_level;
-      return getLevelInfoByGrowth(this.totalGrowth).is_max_level;
+      return this.levelInfo.is_max_level;
     },
     rankText() {
       return this.myRank || '--';
@@ -230,16 +242,26 @@ export default {
       uni.reLaunch({ url: '/pages/auth/login' });
       return;
     }
-    uni.hideTabBar();
+    this.safeHideTabBar();
     this.loadProfile();
   },
   onHide() {
-    uni.showTabBar();
+    this.safeShowTabBar();
   },
   onUnload() {
-    uni.showTabBar();
+    this.safeShowTabBar();
   },
   methods: {
+    safeHideTabBar() {
+      uni.hideTabBar({
+        fail: () => {}
+      });
+    },
+    safeShowTabBar() {
+      uni.showTabBar({
+        fail: () => {}
+      });
+    },
     async loadProfile() {
       if (!hasLogin()) {
         return;
@@ -271,8 +293,7 @@ export default {
         this.user = {
           ...this.user,
           ...profileUser,
-          ...levelInfo,
-          ...profileUser
+          ...levelInfo
         };
         this.garden = (profileResult.data && profileResult.data.garden) || this.garden;
         if (rankResult && rankResult.code === 0) {
@@ -293,6 +314,15 @@ export default {
     },
     goRanking() {
       uni.navigateTo({ url: '/pages/profile/ranking' });
+    },
+    goTimeline() {
+      uni.navigateTo({ url: '/pages/profile/timeline' });
+    },
+    goRedeem() {
+      uni.navigateTo({ url: '/pages/profile/redeem' });
+    },
+    goRules() {
+      uni.navigateTo({ url: '/pages/profile/rules' });
     },
     async onLogout() {
       const modalRes = await new Promise((resolve) => {

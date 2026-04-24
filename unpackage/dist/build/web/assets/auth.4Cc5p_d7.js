@@ -1,0 +1,1 @@
+import{H as n,n as r}from"./index-BOrnJgVK.js";function e(){const e=n("uni_id_token")||"",t=r.getCurrentUserInfo?r.getCurrentUserInfo():{};return{uniIdToken:e,uid:t&&t.uid?t.uid:""}}function t(){const n=r.getCurrentUserInfo?r.getCurrentUserInfo():{};return!(!n||!n.uid)}export{e as g,t as h};

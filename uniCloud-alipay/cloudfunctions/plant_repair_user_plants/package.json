@@ -1,0 +1,10 @@
+{
+  "name": "plant-repair-user-plants",
+  "version": "1.0.0",
+  "description": "repair legacy pf_user_plants data",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "uni-id": "file:../../../uni_modules/uni-id/uniCloud/cloudfunctions/common/uni-id"
+  }
+}

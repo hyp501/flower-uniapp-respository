@@ -1,0 +1,1 @@
+"use strict";const n=require("./vendor.js");exports.getAuthPayload=function(){const r=n.index.getStorageSync("uni_id_token")||"",e=n.nr.getCurrentUserInfo?n.nr.getCurrentUserInfo():{};return{uniIdToken:r,uid:e&&e.uid?e.uid:""}},exports.hasLogin=function(){const r=n.nr.getCurrentUserInfo?n.nr.getCurrentUserInfo():{};return!(!r||!r.uid)};

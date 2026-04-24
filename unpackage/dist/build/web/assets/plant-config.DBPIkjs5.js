@@ -1,0 +1,1 @@
+const e=[{key:"water",label:"浇水"},{key:"fertilize",label:"施肥"},{key:"weed",label:"除草"},{key:"prune",label:"修剪"},{key:"share",label:"分享"}];function l(e,l=0){const a=Number(e);return Number.isFinite(a)?a:l}export{e as A,l as s};

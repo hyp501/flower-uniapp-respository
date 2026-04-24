@@ -1,0 +1,10 @@
+{
+  "name": "plant-exchange-order",
+  "version": "1.0.0",
+  "description": "create exchange order for bloom flowers",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "uni-id": "file:../../../uni_modules/uni-id/uniCloud/cloudfunctions/common/uni-id"
+  }
+}
